@@ -1,23 +1,48 @@
 // lib/features/dashboard/presentation/pages/dashboard_page.dart
 
 import 'package:flutter/material.dart';
-// 1. THÊM IMPORT ĐẾN DAILY_STREAK_PAGE
-import 'package:btlmagicenglish/features/dashboard/presentation/pages/daily_streak_page.dart'; // <-- Thay 'magic_english' bằng tên project của bạn
+// 1. IMPORT CÁC PAGE CẦN THIẾT
+import 'package:btlmagicenglish/features/dashboard/presentation/pages/daily_streak_page.dart';
+import 'package:btlmagicenglish/features/achievements/presentation/pages/achievements_page.dart';
+import 'package:btlmagicenglish/features/notifications/presentation/pages/notifications_page.dart'; // <-- THÊM DÒNG NÀY
 
-import '../widgets/achievements_preview.dart';
+import '../../../achievements/presentation/widgets/achievements_preview.dart';
 import '../widgets/cefr_chart_preview.dart';
 import '../widgets/stats_card.dart';
 import '../widgets/streak_card.dart';
 import '../widgets/word_type_chart_preview.dart';
 
+
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
+  void _navigateToDailyStreak(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const DailyStreakPage(),
+      ),
+    );
+  }
+
+  void _navigateToAchievements(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const AchievementsPage(),
+      ),
+    );
+  }
+
+  // 2. TẠO HÀM ĐIỀU HƯỚNG RIÊNG CHO NOTIFICATIONS
+  void _navigateToNotifications(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const NotificationsPage(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // ViewModel/Bloc/Provider sẽ được inject ở đây sau này
-    final textTheme = Theme.of(context).textTheme;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -25,12 +50,10 @@ class DashboardPage extends StatelessWidget {
         foregroundColor: Colors.black,
         elevation: 0,
         actions: [
+          // 3. CẬP NHẬT LOGIC onPressed CHO ICONBUTTON
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {
-              // TODO: Navigate to Notifications screen
-              print("Navigate to Notifications");
-            },
+            onPressed: () => _navigateToNotifications(context), // <-- THAY ĐỔI TẠI ĐÂY
           ),
         ],
       ),
@@ -41,17 +64,9 @@ class DashboardPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 2. CẬP NHẬT LOGIC onTap TẠI ĐÂY
               StreakCard(
                 streakDays: 15,
-                onTap: () {
-                  // Sử dụng Navigator.push để mở màn hình mới
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const DailyStreakPage(),
-                    ),
-                  );
-                },
+                onTap: () => _navigateToDailyStreak(context),
               ),
               const SizedBox(height: 24),
 
@@ -81,15 +96,17 @@ class DashboardPage extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              // 3. Achievements Section
-              _buildSectionTitle(context, 'Achievements', () => print("View All Achievements")),
+              _buildSectionTitle(
+                  context,
+                  'Achievements',
+                      () => _navigateToAchievements(context)
+              ),
               const SizedBox(height: 12),
               AchievementsPreview(
-                onTap: () => print("Achievements Preview Tapped"),
+                onTap: () => _navigateToAchievements(context),
               ),
               const SizedBox(height: 24),
 
-              // 4. CEFR Chart
               _buildSectionTitle(context, 'Proficiency Level (CEFR)', () => print("View CEFR Details")),
               const SizedBox(height: 12),
               CefrChartPreview(
@@ -97,7 +114,6 @@ class DashboardPage extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              // 5. Word-type Chart
               _buildSectionTitle(context, 'Vocabulary Breakdown', () => print("View Vocab Details")),
               const SizedBox(height: 12),
               WordTypeChartPreview(
@@ -110,7 +126,6 @@ class DashboardPage extends StatelessWidget {
     );
   }
 
-  // Helper widget cho các tiêu đề section
   Widget _buildSectionTitle(BuildContext context, String title, VoidCallback onViewAll) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
